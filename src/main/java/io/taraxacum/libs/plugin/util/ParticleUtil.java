@@ -103,6 +103,31 @@ public class ParticleUtil {
         ParticleUtil.drawLineByDistance(plugin, particle, interval, distance, locations);
     }
 
+    public static void drawCubeByBlock(@Nonnull Plugin plugin, @Nonnull Particle particle, long interval, Location... blocks) {
+        int time = 0;
+        for (Location location : blocks) {
+            World world = location.getWorld();
+            if (world == null) {
+                continue;
+            }
+            int x = location.getBlockX();
+            int y = location.getBlockY();
+            int z = location.getBlockZ();
+            if (time < 50) {
+                for (int i = 0; i < BLOCK_CUBE_OFFSET_X.length; i++) {
+                    world.spawnParticle(particle, x + BLOCK_CUBE_OFFSET_X[i], y + BLOCK_CUBE_OFFSET_Y[i], z + BLOCK_CUBE_OFFSET_Z[i], 1, 0, 0, 0, 0);
+                }
+            } else {
+                plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+                    for (int i = 0; i < BLOCK_CUBE_OFFSET_X.length; i++) {
+                        world.spawnParticle(particle, x + BLOCK_CUBE_OFFSET_X[i], y + BLOCK_CUBE_OFFSET_Y[i], z + BLOCK_CUBE_OFFSET_Z[i], 1, 0, 0, 0, 0);
+                    }
+                }, time / 50);
+            }
+            time += interval;
+        }
+    }
+
     public static void drawCubeByBlock(@Nonnull Plugin plugin, @Nonnull Particle particle, long interval, Block... blocks) {
         int time = 0;
         for (Block block : blocks) {

@@ -5,6 +5,7 @@ import io.github.thebusybiscuit.slimefun4.utils.itemstack.ItemStackWrapper;
 import io.taraxacum.libs.plugin.dto.ItemAmountWrapper;
 import io.taraxacum.libs.plugin.dto.ItemWrapper;
 import me.matl114.matlib.Utils.CraftUtils;
+import me.matl114.matlib.Utils.Inventory.ItemStacks.CleanItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -50,7 +51,7 @@ public final class ItemStackUtil {
      * @return a cloned #{@link ItemStack}
      */
     public static ItemStack cloneItem(@Nonnull ItemStack item) {
-        return item instanceof ItemStackWrapper ? new ItemStack(item) : item.clone();
+        return item instanceof ItemStackWrapper ? CleanItemStack.ofBukkitClean(item) : item.clone();
     }
 
     /**
@@ -61,7 +62,7 @@ public final class ItemStackUtil {
      * @return a cloned #{@link ItemStack}
      */
     public static ItemStack cloneItem(@Nonnull ItemStack item, int amount) {
-        ItemStack itemStack = item instanceof ItemStackWrapper ? new ItemStack(item) : item.clone();
+        ItemStack itemStack = item instanceof ItemStackWrapper ? CleanItemStack.ofBukkitClean(item) : item.clone();
         itemStack.setAmount(amount);
         return itemStack;
     }
@@ -93,12 +94,13 @@ public final class ItemStackUtil {
         if (item1.getType()!=item2.getType()) {
             return false;
         }
-        ItemMeta meta1 = item1.getItemMeta();
-        ItemMeta meta2 = item2.getItemMeta();
-        boolean hasMeta1 = !Bukkit.getItemFactory().equals(meta1,null);
-        boolean hasMeta2 = !Bukkit.getItemFactory().equals(meta2,null);
+
+        boolean hasMeta1 = item1.hasItemMeta();
+        boolean hasMeta2 = item2.hasItemMeta();
         if (hasMeta1 && hasMeta2) {
-            return ItemStackUtil.isItemMetaSame(meta1,meta2);
+            ItemMeta meta1 = item1.getItemMeta();
+            ItemMeta meta2 = item2.getItemMeta();
+            return meta1==meta2 ||(meta1!=null&&meta2!=null&&ItemStackUtil.isItemMetaSame(meta1,meta2));
         }
         return hasMeta1 == hasMeta2;
     }
@@ -132,10 +134,10 @@ public final class ItemStackUtil {
             return false;
         }
         ItemMeta meta1 = item1.getItemMeta();
-        ItemMeta meta2 = item2.getItemMeta();
-        boolean hasMeta2 = !Bukkit.getItemFactory().equals(meta2,null);
+        boolean hasMeta2 = item2.hasItemMeta();
         if (meta1 !=null && hasMeta2) {
-            return ItemStackUtil.isItemMetaSame(meta1, meta2);
+            ItemMeta meta2 = item2.getItemMeta();
+            return meta2 != null && ItemStackUtil.isItemMetaSame(meta1, meta2);
         }
         return meta1 == null && !hasMeta2;
     }
@@ -144,8 +146,12 @@ public final class ItemStackUtil {
         if (item1.getItemStack() == item2.getItemStack()) {
             return true;
         }
-        if (!item1.getItemStack().getType().equals(item2.getItemStack().getType())) {
+        if (item1.getItemType()!=item2.getItemType()) {
             return false;
+        }
+        //if meta cache instance is same, there's no need to compare
+        if(item1.quickMetaRefMatch(item2)){
+            return true;
         }
         ItemMeta meta1 = item1.getItemMeta();
         ItemMeta meta2 = item2.getItemMeta();
@@ -166,7 +172,7 @@ public final class ItemStackUtil {
 //        } else if (itemMeta1.hasDisplayName() || itemMeta2.hasDisplayName()) {
 //            return false;
 //        }
-        return ItemStackUtil.isNameSame(itemMeta1, itemMeta2) && ItemStackUtil.isContainerSame(itemMeta1, itemMeta2) && ItemStackUtil.isLoreSame(itemMeta1, itemMeta2) ;
+        return itemMeta1==itemMeta2 ||( ItemStackUtil.isNameSame(itemMeta1, itemMeta2) && ItemStackUtil.isContainerSame(itemMeta1, itemMeta2) && ItemStackUtil.isLoreSame(itemMeta1, itemMeta2) );
     }
     public static boolean isNameSame(@Nonnull ItemMeta itemMeta1,@Nonnull ItemMeta itemMeta2){
         return CraftUtils.matchDisplayNameField(itemMeta1,itemMeta2);
@@ -621,7 +627,7 @@ public final class ItemStackUtil {
         if (ItemStackUtil.isItemNull(item)) {
             return "null";
         }
-        item = new ItemStack(item);
+        item = CleanItemStack.ofBukkitClean(item);
         if (item.hasItemMeta()) {
             ItemMeta itemMeta = item.getItemMeta();
             if (itemMeta.hasDisplayName()) {
@@ -911,9 +917,9 @@ public final class ItemStackUtil {
             return null;
         }
         if (!itemStack.hasItemMeta()) {
-            return new ItemStack(itemStack);
+            return CleanItemStack.ofBukkitClean(itemStack);
         }
-        ItemStack result = new ItemStack(itemStack);
+        ItemStack result = CleanItemStack.ofBukkitClean(itemStack);
         ItemStackUtil.clearNBT(result);
         return result;
     }

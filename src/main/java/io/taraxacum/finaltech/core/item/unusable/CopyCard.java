@@ -18,6 +18,7 @@ import io.taraxacum.libs.plugin.util.StringItemUtil;
 import io.taraxacum.libs.plugin.util.TextUtil;
 import io.taraxacum.libs.slimefun.interfaces.ValidItem;
 import io.taraxacum.libs.slimefun.util.SfItemUtil;
+import me.matl114.matlib.Utils.Inventory.ItemStacks.CleanItemStack;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -68,7 +69,7 @@ public class CopyCard extends UnusableSlimefunItem implements RecipeItem, ValidI
     @Nonnull
     public ItemStack getValidItem(@Nonnull ItemStack stringItem, @Nonnull String amount) {
         ItemStack result = ItemStackUtil.cloneItem(FinalTechItemStacks.COPY_CARD);
-        ItemStack temp = new ItemStack(stringItem);
+        ItemStack temp = CleanItemStack.ofBukkitClean(stringItem);
 
         result.setAmount(1);
         StringItemUtil.setItemInCard(result, temp, amount);

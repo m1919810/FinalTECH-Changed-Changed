@@ -8,8 +8,8 @@ import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.core.handlers.*;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.taraxacum.finaltech.FinalTechChanged;
-import io.taraxacum.finaltech.FinalTechChanged;
 import io.taraxacum.finaltech.core.interfaces.RecipeItem;
+import io.taraxacum.finaltech.core.item.machine.EntropySeed;
 import io.taraxacum.finaltech.core.menu.AbstractMachineMenu;
 import io.taraxacum.finaltech.setup.FinalTechItemStacks;
 import io.taraxacum.finaltech.util.*;
@@ -17,8 +17,9 @@ import io.taraxacum.libs.plugin.dto.ItemWrapper;
 import io.taraxacum.libs.plugin.util.ItemStackUtil;
 import io.taraxacum.libs.slimefun.interfaces.SimpleValidItem;
 import io.taraxacum.libs.slimefun.util.SfItemUtil;
+import me.matl114.matlib.Utils.Inventory.ItemStacks.CleanItemStack;
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
-import me.mrCookieSlime.Slimefun.api.BlockStorage;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -50,7 +51,7 @@ public class EquivalentConcept extends AbstractPointMachine implements RecipeIte
     public EquivalentConcept(ItemGroup itemGroup, SlimefunItemStack item, RecipeType recipeType, ItemStack[] recipe) {
         super(itemGroup, item, recipeType, recipe);
 
-        ItemStack validItem = new ItemStack(this.getItem());
+        ItemStack validItem = CleanItemStack.ofBukkitClean(this.getItem());
         SfItemUtil.setSpecialItemKey(validItem);
         this.templateValidItem = new ItemWrapper(validItem);
 
@@ -93,7 +94,12 @@ public class EquivalentConcept extends AbstractPointMachine implements RecipeIte
     @Nonnull
     @Override
     protected BlockBreakHandler onBlockBreak() {
-        return MachineUtil.simpleBlockBreakerHandler();
+        return new BlockBreakHandler(false, true) {
+            @Override
+            public void onPlayerBreak(@Nonnull BlockBreakEvent blockBreakEvent, @Nonnull ItemStack itemStack, @Nonnull List<ItemStack> list) {
+                EntropySeed.removeCache(blockBreakEvent.getBlock().getLocation());
+            }
+        };
     }
 
     @Nonnull
@@ -116,62 +122,63 @@ public class EquivalentConcept extends AbstractPointMachine implements RecipeIte
         try  {
             if (FinalTechChanged.y) {
                 FinalTechChanged.getInstance().getServer().getScheduler().runTask(FinalTechChanged.getInstance(), () -> block.setType(Material.AIR));
-                BlockStorage.clearBlockInfo(block.getLocation());
+                EntropySeed.removeBlock(block.getLocation());
                 return ;
             }
-            if (BlockStorage.getLocationInfo(block.getLocation(), ConstantTableUtil.CONFIG_SLEEP) != null) {
-                String sleepStr = BlockStorage.getLocationInfo(block.getLocation(), ConstantTableUtil.CONFIG_SLEEP);
-                if (sleepStr != null) {
-                    double sleep = Double.parseDouble(sleepStr) - 1;
-                    if (sleep > 0) {
-                        BlockStorage.addBlockInfo(block.getLocation(), ConstantTableUtil.CONFIG_SLEEP, String.valueOf(sleep));
-                        return;
-                    } else {
-                        BlockStorage.addBlockInfo(block.getLocation(), ConstantTableUtil.CONFIG_SLEEP, String.valueOf(0));
+            String sleepStr = EntropySeed.getLocationInfoCache(block.getLocation(), ConstantTableUtil.CONFIG_SLEEP);
+            if (sleepStr != null) {
+                double sleep = Double.parseDouble(sleepStr) - 1;
+                if (sleep > 0) {
+                    EntropySeed.addLocationInfoCache(block.getLocation(), ConstantTableUtil.CONFIG_SLEEP, String.valueOf(sleep));
+                    return;
+                } else {
+                    EntropySeed.addLocationInfoCache(block.getLocation(), ConstantTableUtil.CONFIG_SLEEP, String.valueOf(0));
 
-                    }
                 }
+
             }
             Location l = block.getLocation();
-            double life = (BlockStorage.getLocationInfo(block.getLocation(), KEY_LIFE) != null) ? Double.parseDouble(BlockStorage.getLocationInfo(l, KEY_LIFE)) : 0;
+            String lifeStr = EntropySeed.getLocationInfoCache(l, KEY_LIFE);
+            double life = (lifeStr != null) ? Double.parseDouble(lifeStr) : 0;
             if (life < 1) {
-                Location location = block.getLocation();
-                BlockStorage.addBlockInfo(location, KEY_LIFE, "0");
-                BlockStorage.addBlockInfo(location, KEY_RANGE, "0");
-                BlockStorage.addBlockInfo(l, ConstantTableUtil.CONFIG_SLEEP, "0");
-                BlockStorage.clearBlockInfo(location);
+                EntropySeed.removeBlock(l);
                 JavaPlugin javaPlugin = this.getAddon().getJavaPlugin();
                 javaPlugin.getServer().getScheduler().runTaskLaterAsynchronously(javaPlugin, () -> {
-                    if (!location.getBlock().getType().isAir() && BlockStorage.getLocationInfo(location, ConstantTableUtil.CONFIG_ID) == null) {
-                        BlockStorage.addBlockInfo(location, ConstantTableUtil.CONFIG_ID, FinalTechItemStacks.JUSTIFIABILITY.getItemId(), true);
+                    if ( EntropySeed.getBlock(l) == null && !l.getBlock().getType().isAir()) {
+                        EntropySeed.tryCreateBlock(l, FinalTechItemStacks.JUSTIFIABILITY.getItemId(), true);
                     }
                 }, Slimefun.getTickerTask().getTickRate() + 1);
                 return;
             }
-
-            final int range = (BlockStorage.getLocationInfo(block.getLocation(), KEY_RANGE) != null) ? Integer.parseInt(BlockStorage.getLocationInfo(l, KEY_RANGE)) : this.range;
+            String keyStr = EntropySeed.getLocationInfoCache(l, KEY_RANGE);
+            final int range = (keyStr != null) ? Integer.parseInt(keyStr) : this.range;
 
             while (life > 1) {
                 final double finalLife = life--;
-                this.pointFunction(block, range, location -> {
-                    FinalTechChanged.getLocationRunnableFactory().waitThenRun(() -> {
-                        Block targetBlock = location.getBlock();
-                        if (!BlockStorage.hasBlockInfo(location)) {
-                            if (targetBlock.getType() == Material.AIR) {
-                                BlockStorage.addBlockInfo(location, ConstantTableUtil.CONFIG_ID, EquivalentConcept.this.getId(), true);
-                                BlockStorage.addBlockInfo(location, KEY_LIFE, String.valueOf(finalLife * attenuationRate));
-                                BlockStorage.addBlockInfo(location, KEY_RANGE, String.valueOf(range + 1));
-                                BlockTickerUtil.setSleep(BlockStorage.getLocationInfo(location), String.valueOf(EquivalentConcept.this.life - finalLife));
+                int flag = 0 ;
+                for (int i = 0 ;i <5 && flag==0 ; ++i){
+                    flag = this.pointFunction(block, range, location -> {
+                        String blockInfo = EntropySeed.getBlock(location);
+                        if (blockInfo == null) {
+                            Block targetBlock = location.getBlock();
+                            if (targetBlock.getType().isAir()) {
                                 JavaPlugin javaPlugin = EquivalentConcept.this.getAddon().getJavaPlugin();
-                                javaPlugin.getServer().getScheduler().runTask(javaPlugin, () -> targetBlock.setType(EquivalentConcept.this.getItem().getType()));
+                                Bukkit.getScheduler().runTaskAsynchronously(javaPlugin, () -> {
+                                    EntropySeed.tryCreateBlock(location,EquivalentConcept.this.getId(), true);
+                                    EntropySeed.addLocationInfoCache(location, KEY_LIFE, String.valueOf(finalLife * attenuationRate));
+                                    EntropySeed.addLocationInfoCache(location, KEY_RANGE, String.valueOf(range + 1));
+                                    EntropySeed.addLocationInfoCache(location,ConstantTableUtil.CONFIG_SLEEP, String.valueOf(EquivalentConcept.this.life - finalLife));
+                                    javaPlugin.getServer().getScheduler().runTask(javaPlugin, () -> targetBlock.setType(EquivalentConcept.this.getItem().getType()));
+                                });
+                                return 1;
                             }
                         }
-                    }, location);
-                    return 0;
-                });
+                        return 0;
+                    });
+                }
             }
 
-            BlockStorage.addBlockInfo(block, KEY_LIFE, String.valueOf(0));
+            EntropySeed.addLocationInfoCache(block.getLocation(), KEY_LIFE, String.valueOf(0));
         } catch (Exception e) {
             FinalTechChanged.getInstance().getLogger().warning("[FINALTECH] 物品 等概念体 出现了异常, 但不要担心这是正常情况");
         }

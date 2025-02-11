@@ -17,6 +17,8 @@ import io.taraxacum.finaltech.core.menu.cargo.AdvancedLocationTransferMenu;
 import io.taraxacum.finaltech.util.*;
 import io.taraxacum.libs.plugin.util.ItemStackUtil;
 import io.taraxacum.libs.plugin.util.ParticleUtil;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.OldSlimefunInventoryRecord;
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
@@ -88,9 +90,9 @@ public class AdvancedLocationTransfer extends AbstractCargo implements RecipeIte
         }
         Block targetBlock = targetLocation.getBlock();
 
-        if (!PermissionUtil.checkOfflinePermission(locationRecorder, targetLocation)) {
-            return;
-        }
+//        if (!PermissionUtil.checkOfflinePermission(locationRecorder, targetLocation)) {
+//            return;
+//        }
 
         String slotSearchSize = SlotSearchSize.HELPER.getOrDefaultValue(config);
         String slotSearchOrder = SlotSearchOrder.HELPER.getOrDefaultValue(config);
@@ -98,27 +100,7 @@ public class AdvancedLocationTransfer extends AbstractCargo implements RecipeIte
         CargoDTO cargoDTO = new CargoDTO();
         cargoDTO.setJavaPlugin(this.addon.getJavaPlugin());
 
-        boolean positive;
-        if (CargoOrder.VALUE_POSITIVE.equals(CargoOrder.HELPER.getOrDefaultValue(config))) {
-            cargoDTO.setInputBlock(block);
-            cargoDTO.setInputSize(SlotSearchSize.VALUE_INPUTS_ONLY);
-            cargoDTO.setInputOrder(SlotSearchOrder.VALUE_ASCENT);
-
-            cargoDTO.setOutputBlock(targetBlock);
-            cargoDTO.setOutputSize(slotSearchSize);
-            cargoDTO.setOutputOrder(slotSearchOrder);
-            positive = true;
-        } else {
-            cargoDTO.setOutputBlock(block);
-            cargoDTO.setOutputSize(SlotSearchSize.VALUE_INPUTS_ONLY);
-            cargoDTO.setOutputOrder(SlotSearchOrder.VALUE_ASCENT);
-
-            cargoDTO.setInputBlock(targetBlock);
-            cargoDTO.setInputSize(slotSearchSize);
-            cargoDTO.setInputOrder(slotSearchOrder);
-            positive = false;
-        }
-
+        boolean positive = CargoOrder.VALUE_POSITIVE.equals(CargoOrder.HELPER.getOrDefaultValue(config));
         if (drawParticle) {
             javaPlugin.getServer().getScheduler().runTaskAsynchronously(javaPlugin, () -> ParticleUtil.drawCubeByBlock(javaPlugin, Particle.WAX_OFF, 0, targetBlock));
             if (FinalTechChanged.getSlimefunTickCount() % this.particleInterval == 0) {
@@ -129,7 +111,31 @@ public class AdvancedLocationTransfer extends AbstractCargo implements RecipeIte
                 javaPlugin.getServer().getScheduler().runTaskAsynchronously(javaPlugin, () -> ParticleUtil.drawLineByDistance(javaPlugin, Particle.CRIT_MAGIC, this.particleInterval * Slimefun.getTickerTask().getTickRate() * 50L, this.particleDistance, finalLocationList));
             }
         }
+        InventoryRecord originInv = OldSlimefunInventoryRecord.getInventoryRecord(block.getLocation(),true);
+        if(originInv.inventory()==null){
+            return;
+        }
+        InventoryRecord targetInv = OldSlimefunInventoryRecord.getInventoryRecord(targetBlock.getLocation(),false);
+        if(targetInv.inventory()==null){
+            return;
+        }
+        if (positive) {
+            cargoDTO.setInputBlock(originInv);
+            cargoDTO.setInputSize(SlotSearchSize.VALUE_INPUTS_ONLY);
+            cargoDTO.setInputOrder(SlotSearchOrder.VALUE_ASCENT);
 
+            cargoDTO.setOutputBlock(targetInv);
+            cargoDTO.setOutputSize(slotSearchSize);
+            cargoDTO.setOutputOrder(slotSearchOrder);
+        } else {
+            cargoDTO.setOutputBlock(originInv);
+            cargoDTO.setOutputSize(SlotSearchSize.VALUE_INPUTS_ONLY);
+            cargoDTO.setOutputOrder(SlotSearchOrder.VALUE_ASCENT);
+
+            cargoDTO.setInputBlock(targetInv);
+            cargoDTO.setInputSize(slotSearchSize);
+            cargoDTO.setInputOrder(slotSearchOrder);
+        }
         cargoDTO.setCargoNumber(Integer.parseInt(CargoNumber.HELPER.getOrDefaultValue(config)));
         cargoDTO.setCargoLimit(CargoLimit.HELPER.getOrDefaultValue(config));
         cargoDTO.setCargoFilter(CargoFilter.VALUE_BLACK);

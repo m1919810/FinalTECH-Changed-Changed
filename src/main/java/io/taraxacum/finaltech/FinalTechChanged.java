@@ -6,6 +6,7 @@ import io.taraxacum.common.util.StringNumberUtil;
 import io.taraxacum.finaltech.setup.FinalTechItemStacks;
 import io.taraxacum.finaltech.setup.SetupUtil;
 import io.taraxacum.finaltech.setup.Updater;
+import io.taraxacum.finaltech.util.CargoUtil;
 import io.taraxacum.finaltech.util.ConstantTableUtil;
 import io.taraxacum.libs.plugin.dto.ConfigFileManager;
 import io.taraxacum.libs.plugin.dto.CustomLogger;
@@ -411,6 +412,7 @@ public class FinalTechChanged extends JavaPlugin implements SlimefunAddon {
         } else {
             SetupUtil.registerBlockTicker();
         }
+        CargoUtil.initLockFactory();
 
         /* setup bstats */
         Metrics metrics = new Metrics(this, 16920);

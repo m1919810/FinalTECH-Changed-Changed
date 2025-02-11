@@ -25,6 +25,8 @@ import io.taraxacum.libs.plugin.dto.LocationRecipeRegistry;
 import io.taraxacum.libs.plugin.util.ItemStackUtil;
 import io.taraxacum.libs.slimefun.dto.AdvancedCraft;
 import io.taraxacum.libs.slimefun.util.BlockStorageConfigUtil;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.OldSlimefunInventoryRecord;
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
@@ -77,15 +79,16 @@ public class AdvancedAutoCraft extends AbstractFaceMachine implements RecipeItem
         }
 
         Block containerBlock = block.getRelative(BlockFace.DOWN);
-        if (!BlockStorage.hasBlockInfo(containerBlock.getLocation()) || !BlockStorage.hasInventory(containerBlock)) {
+        InventoryRecord containerRecord = OldSlimefunInventoryRecord.getInventoryRecord(containerBlock.getLocation(),false);
+        if (!containerRecord.hasData()||containerRecord.inventory()==null) {
             return;
         }
 
         String containerId = BlockStorage.getLocationInfo(containerBlock.getLocation(), ConstantTableUtil.CONFIG_ID);
         if (containerId != null) {
             Runnable runnable = () -> {
-                InvWithSlots inputMap = CargoUtil.getInvWithSlots(containerBlock, SlotSearchSize.INPUT_HELPER.getOrDefaultValue(containerBlock.getLocation()), SlotSearchOrder.VALUE_ASCENT);
-                InvWithSlots outputMap = CargoUtil.getInvWithSlots(containerBlock, SlotSearchSize.OUTPUT_HELPER.getOrDefaultValue(containerBlock.getLocation()), SlotSearchOrder.VALUE_ASCENT);
+                InvWithSlots inputMap = CargoUtil.getInvWithSlots(containerRecord, SlotSearchSize.INPUT_HELPER.getOrDefaultValue(containerBlock.getLocation()), SlotSearchOrder.VALUE_ASCENT);
+                InvWithSlots outputMap = CargoUtil.getInvWithSlots(containerRecord, SlotSearchSize.OUTPUT_HELPER.getOrDefaultValue(containerBlock.getLocation()), SlotSearchOrder.VALUE_ASCENT);
                 if (inputMap == null || outputMap == null || inputMap.getSlots().length == 0 || outputMap.getSlots().length == 0) {
                     return;
                 }

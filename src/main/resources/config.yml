@@ -53,8 +53,6 @@ tweak:
       - '_FINALTECH_ORDERED_DUST_FACTORY_STONE'
   anti-accelerate:
     item:
-      - 'ENTROPY_SEED'
-      - 'EQUIVALENT_CONCEPT'
       - 'MATRIX_GENERATOR'
       - 'MATRIX_REACTOR'
   interval:

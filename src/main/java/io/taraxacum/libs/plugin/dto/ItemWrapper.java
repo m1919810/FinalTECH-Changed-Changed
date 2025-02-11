@@ -1,6 +1,5 @@
 package io.taraxacum.libs.plugin.dto;
 
-import com.google.errorprone.annotations.concurrent.LazyInit;
 import io.github.thebusybiscuit.slimefun4.utils.itemstack.ItemStackWrapper;
 import io.taraxacum.libs.plugin.util.ItemStackUtil;
 import me.matl114.matlib.Utils.Algorithm.LazyInitReference;
@@ -13,7 +12,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ItemWrapper implements Cloneable{
     private static final ItemStack AIR = new ItemStack(Material.AIR);
@@ -61,6 +59,13 @@ public class ItemWrapper implements Cloneable{
         wrapper.itemStack = itemStack;
         return wrapper;
     }
+    public static ItemWrapper ofNullableMeta(@Nullable ItemStack itemStack,ItemMeta itemMeta) {
+        if (itemStack == null) {
+            return null;
+        }else {
+            return ofMeta(itemStack, itemMeta);
+        }
+    }
 //    public static ItemWrapper ofMetaRef(ItemStack itemStack,AtomicReference<ItemMeta> itemMeta) {
 //        ItemWrapper wrapper = INSTANCE.clone();
 //        wrapper.itemMeta = itemMeta;
@@ -92,6 +97,13 @@ public class ItemWrapper implements Cloneable{
         ItemWrapper wrapper = itemWrapper.clone();
         wrapper.itemStack = itemStack;
         return wrapper;
+    }
+    public static ItemWrapper setNullableMetaOf(ItemStack itemStack,ItemWrapper itemWrapper){
+        if(itemStack == null){
+            return null;
+        }else {
+            return setMetaOf(itemStack, itemWrapper);
+        }
     }
 
     /**
@@ -184,10 +196,14 @@ public class ItemWrapper implements Cloneable{
     @Nullable
     public ItemMeta getItemMeta() {
         if(!itemMetaReference.init){
-            itemMetaReference.init = true;
             this.itemMetaReference.value = this.itemStack.hasItemMeta() ? this.itemStack.getItemMeta() : null;
+            itemMetaReference.init = true;
         }
         return this.itemMetaReference.value;
+    }
+
+    public boolean quickMetaRefMatch(ItemWrapper itemWrapper) {
+        return this.itemMetaReference == itemWrapper.itemMetaReference;
     }
 
 //    public void setItemMeta(@Nullable ItemMeta itemMeta) {
@@ -200,8 +216,7 @@ public class ItemWrapper implements Cloneable{
 //    }
 
     public void updateItemMeta() {
-        this.itemMetaReference.init = true;
-        this.itemMetaReference.value = this.itemStack.hasItemMeta() ? this.itemStack.getItemMeta() : null;
+        this.itemMetaReference = LazyInitReference.ofValue(this.itemStack.hasItemMeta() ? this.itemStack.getItemMeta() : null);
     }
 
     public void newWrap(@Nonnull ItemStack itemStack) {
@@ -240,7 +255,7 @@ public class ItemWrapper implements Cloneable{
     @Override
     public boolean equals(@Nonnull Object obj) {
         if (this.itemStack instanceof ItemStackWrapper) {
-            return new ItemStack(this.itemStack).equals(obj);
+            return CleanItemStack.ofBukkitClean(this.itemStack).equals(obj);
         } else {
             return this.itemStack.equals(obj);
         }

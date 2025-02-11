@@ -8,6 +8,7 @@ import io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler;
 import io.taraxacum.finaltech.FinalTechChanged;
 import io.taraxacum.finaltech.FinalTechChanged;
+import io.taraxacum.finaltech.core.dto.CargoDTO;
 import io.taraxacum.finaltech.core.dto.SimpleCargoDTO;
 import io.taraxacum.finaltech.core.helper.CargoFilter;
 import io.taraxacum.finaltech.core.helper.CargoLimit;
@@ -25,6 +26,8 @@ import io.taraxacum.libs.plugin.dto.InvWithSlots;
 import io.taraxacum.libs.plugin.util.ItemStackUtil;
 import io.taraxacum.libs.slimefun.dto.AdvancedCraft;
 import io.taraxacum.libs.slimefun.dto.MachineRecipeFactory;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.OldSlimefunInventoryRecord;
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
@@ -70,7 +73,7 @@ public class MultiFrameMachine extends AbstractMachine implements RecipeItem {
     protected void tick(@Nonnull Block block, @Nonnull SlimefunItem slimefunItem, @Nonnull Config config) {
         BlockMenu blockMenu = BlockStorage.getInventory(block);
         Inventory inventory = blockMenu.toInventory();
-
+        InventoryRecord blockRecord = new OldSlimefunInventoryRecord(inventory,blockMenu);
         int point = 0;
         int offset;
         List<AdvancedMachineRecipe> availableRecipe;
@@ -117,11 +120,11 @@ public class MultiFrameMachine extends AbstractMachine implements RecipeItem {
         }
 
         if (inputs.size() > 1) {
-            SimpleCargoDTO simpleCargoDTO = new SimpleCargoDTO();
-            simpleCargoDTO.setInputBlock(block);
+            CargoDTO simpleCargoDTO = new CargoDTO();
+            simpleCargoDTO.setInputBlock(blockRecord);
             simpleCargoDTO.setInputSize(SlotSearchSize.VALUE_OUTPUTS_ONLY);
             simpleCargoDTO.setInputOrder(SlotSearchOrder.VALUE_ASCENT);
-            simpleCargoDTO.setOutputBlock(block);
+            simpleCargoDTO.setOutputBlock(blockRecord);
             simpleCargoDTO.setOutputSize(SlotSearchSize.VALUE_INPUTS_ONLY);
             simpleCargoDTO.setOutputOrder(SlotSearchOrder.VALUE_ASCENT);
             simpleCargoDTO.setCargoNumber(3456);
@@ -131,9 +134,8 @@ public class MultiFrameMachine extends AbstractMachine implements RecipeItem {
             simpleCargoDTO.setFilterSlots(new int[0]);
 
             for (int i = 0; i < inputs.size() - 1; i++) {
-                simpleCargoDTO.setInputMap(new InvWithSlots(blockMenu.toInventory(), outputs.get(i)));
-                simpleCargoDTO.setOutputMap(new InvWithSlots(blockMenu.toInventory(), inputs.get((i + 1) % outputs.size())));
-                CargoUtil.doSimpleCargoWeakSymmetry(simpleCargoDTO);
+
+                CargoUtil.doSimpleCargoWeakSymmetry(simpleCargoDTO,new InvWithSlots(blockMenu.toInventory(), outputs.get(i)),new InvWithSlots(blockMenu.toInventory(), inputs.get((i + 1) % outputs.size())));
             }
         }
     }

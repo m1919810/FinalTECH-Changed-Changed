@@ -14,6 +14,7 @@ import io.taraxacum.finaltech.setup.FinalTechItems;
 import io.taraxacum.finaltech.util.ConfigUtil;
 import io.taraxacum.libs.plugin.util.ItemStackUtil;
 import io.taraxacum.libs.plugin.util.StringItemUtil;
+import me.matl114.matlib.Utils.Inventory.ItemStacks.CleanItemStack;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -135,9 +136,9 @@ public class CardOperationPortMenu extends AbstractManualMachineMenu {
                 ItemStack outputItem;
                 SlimefunItem slimefunItem = SlimefunItem.getByItem(itemCard);
                 if (slimefunItem instanceof StorageCard storageCard) {
-                    outputItem = storageCard.getValidItem(new ItemStack(FinalTechItemStacks.ENTROPY), amount);
+                    outputItem = storageCard.getValidItem(CleanItemStack.ofBukkitClean(FinalTechItemStacks.ENTROPY), amount);
                 } else if (slimefunItem instanceof CopyCard copyCard) {
-                    outputItem = copyCard.getValidItem(new ItemStack(FinalTechItemStacks.ENTROPY), amount);
+                    outputItem = copyCard.getValidItem(CleanItemStack.ofBukkitClean(FinalTechItemStacks.ENTROPY), amount);
                 } else {
                     return false;
                 }
@@ -721,7 +722,7 @@ public class CardOperationPortMenu extends AbstractManualMachineMenu {
         for (Craft craft : CRAFT_LIST) {
             if (craft.isEnabled() && craft.canCraft(inputItem1, inputItem2)) {
                 if (ItemStackUtil.isItemNull(iconItem)) {
-                    iconItem = new ItemStack(CRAFT_ICON);
+                    iconItem = CleanItemStack.ofBukkitClean(CRAFT_ICON);
                 }
                 craft.doUpdateIcon(iconItem);
                 work = true;

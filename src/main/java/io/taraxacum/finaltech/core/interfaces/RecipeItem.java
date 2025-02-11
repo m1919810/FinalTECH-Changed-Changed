@@ -10,6 +10,7 @@ import io.taraxacum.finaltech.util.RecipeUtil;
 import io.taraxacum.libs.plugin.util.ItemStackUtil;
 import io.taraxacum.libs.slimefun.dto.MachineRecipeFactory;
 import io.taraxacum.libs.slimefun.dto.RandomMachineRecipe;
+import me.matl114.matlib.Utils.Inventory.ItemStacks.CleanItemStack;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.abstractItems.MachineRecipe;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -33,7 +34,7 @@ public interface RecipeItem extends RecipeDisplayItem {
             int inputLength = recipe.getInput().length;
             int outputLength = recipe instanceof RandomMachineRecipe ? ((RandomMachineRecipe) recipe).getAllOutput().length : recipe.getOutput().length;
             for (int i = 0; i < inputLength; i++) {
-                displayRecipes.add(new ItemStack(recipe.getInput()[i]));
+                displayRecipes.add(CleanItemStack.ofBukkitClean(recipe.getInput()[i]));
                 if (i < inputLength - 1) {
                     displayRecipes.add(new ItemStack(Material.AIR));
                 }
@@ -45,7 +46,7 @@ public interface RecipeItem extends RecipeDisplayItem {
                 if (i != 0) {
                     displayRecipes.add(new ItemStack(Material.AIR));
                 }
-                displayRecipes.add(new ItemStack(recipe instanceof RandomMachineRecipe ? ((RandomMachineRecipe) recipe).getAllOutput()[i] : recipe.getOutput()[i]));
+                displayRecipes.add(CleanItemStack.ofBukkitClean(recipe instanceof RandomMachineRecipe ? ((RandomMachineRecipe) recipe).getAllOutput()[i] : recipe.getOutput()[i]));
             }
         }
         return displayRecipes;

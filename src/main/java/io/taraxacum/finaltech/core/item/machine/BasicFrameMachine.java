@@ -7,6 +7,7 @@ import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler;
 import io.taraxacum.finaltech.FinalTechChanged;
+import io.taraxacum.finaltech.core.dto.CargoDTO;
 import io.taraxacum.finaltech.core.dto.SimpleCargoDTO;
 import io.taraxacum.finaltech.core.helper.CargoFilter;
 import io.taraxacum.finaltech.core.helper.CargoLimit;
@@ -19,6 +20,8 @@ import io.taraxacum.finaltech.util.CargoUtil;
 import io.taraxacum.finaltech.util.MachineUtil;
 import io.taraxacum.finaltech.util.RecipeUtil;
 import io.taraxacum.libs.plugin.dto.InvWithSlots;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
+import me.matl114.matlib.Utils.Inventory.InventoryRecords.OldSlimefunInventoryRecord;
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
@@ -59,8 +62,9 @@ public class BasicFrameMachine extends AbstractMachine implements RecipeItem {
     protected void tick(@Nonnull Block block, @Nonnull SlimefunItem slimefunItem, @Nonnull Config config) {
         BlockMenu blockMenu = BlockStorage.getInventory(block);
         Inventory inventory = blockMenu.toInventory();
+        InventoryRecord record = new OldSlimefunInventoryRecord(inventory,blockMenu);
         MachineUtil.stockSlots(blockMenu.toInventory(), this.getInputSlot());
-        CargoUtil.doSimpleCargoStrongSymmetry(new SimpleCargoDTO(new InvWithSlots(inventory, this.getInputSlot()), block, SlotSearchSize.VALUE_INPUTS_ONLY, SlotSearchOrder.VALUE_ASCENT, new InvWithSlots(inventory, this.getOutputSlot()), block, SlotSearchSize.VALUE_OUTPUTS_ONLY, SlotSearchOrder.VALUE_ASCENT, this.getInputSlot().length * 64, CargoLimit.VALUE_ALL, CargoFilter.VALUE_BLACK, inventory, new int[0]));
+        CargoUtil.doSimpleCargoStrongSymmetry(new CargoDTO(FinalTechChanged.getInstance(), record, SlotSearchSize.VALUE_INPUTS_ONLY, SlotSearchOrder.VALUE_ASCENT, record, SlotSearchSize.VALUE_OUTPUTS_ONLY, SlotSearchOrder.VALUE_ASCENT, this.getInputSlot().length * 64, CargoLimit.VALUE_ALL, CargoFilter.VALUE_BLACK, inventory, new int[0]),new InvWithSlots(inventory, this.getInputSlot()),new InvWithSlots(inventory, this.getOutputSlot()));
         MachineUtil.stockSlots(blockMenu.toInventory(), this.getOutputSlot());
     }
 
