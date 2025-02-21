@@ -20,7 +20,7 @@ import io.taraxacum.libs.plugin.dto.InvWithSlots;
 import io.taraxacum.libs.plugin.dto.ServerRunnableLockFactory;
 import io.taraxacum.libs.plugin.util.ParticleUtil;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
-import me.matl114.matlib.Utils.Inventory.InventoryRecords.OldSlimefunInventoryRecord;
+import me.matl114.matlib.SlimefunUtils.BlockInventory.Records.OldSlimefunInventoryRecord;
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
@@ -90,9 +90,7 @@ public class LineTransfer extends AbstractCargo implements RecipeItem {
     @Override
     protected void tick(@Nonnull Block block, @Nonnull SlimefunItem slimefunItem, @Nonnull Config config) {
         BlockMenu blockMenu = BlockStorage.getInventory(block);
-        Location location = block.getLocation();
         JavaPlugin javaPlugin = this.getAddon().getJavaPlugin();
-        boolean primaryThread = javaPlugin.getServer().isPrimaryThread();
         boolean drawParticle = blockMenu.hasViewer() || RouteShow.VALUE_TRUE.equals(RouteShow.HELPER.getOrDefaultValue(config));
 
 
@@ -135,7 +133,7 @@ public class LineTransfer extends AbstractCargo implements RecipeItem {
         if (drawParticle && !finalBlockList.isEmpty() && FinalTechChanged.getSlimefunTickCount() % this.particleInterval == 0) {
             javaPlugin.getServer().getScheduler().runTaskAsynchronously(javaPlugin, () -> ParticleUtil.drawCubeByBlock(javaPlugin, Particle.ELECTRIC_SPARK, this.particleInterval * Slimefun.getTickerTask().getTickRate() * 50L / finalBlockList.size(), finalBlockList.stream().map(InventoryRecord::invLocation).toArray(Location[]::new)));
         }
-        Bukkit.getScheduler().runTaskAsynchronously(javaPlugin, () -> {
+        Runnable task =  () -> {
             String cargoNumberMode = CargoNumberMode.HELPER.defaultValue();
             String cargoOrder = CargoOrder.HELPER.getOrDefaultValue(config);
             String cargoMode = CargoMode.HELPER.getOrDefaultValue(config);
@@ -207,9 +205,12 @@ public class LineTransfer extends AbstractCargo implements RecipeItem {
                     }
                 }
             }
-        });
-
-
+        };
+        if(CargoUtil.isAsyncMode()){
+            Bukkit.getScheduler().runTaskAsynchronously(javaPlugin, task);
+        }else {
+            task.run();
+        }
     }
 
     @Nonnull

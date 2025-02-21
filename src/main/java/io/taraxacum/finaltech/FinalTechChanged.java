@@ -460,44 +460,44 @@ public class FinalTechChanged extends JavaPlugin implements SlimefunAddon {
         if (this.bukkitTask != null) {
             this.bukkitTask.cancel();
         }
-        BlockStorage.saveChunks();
-        try {
-            FinalTechChanged.logger().info("Waiting all task to end.(" + FinalTechChanged.getLocationRunnableFactory().taskSize() + ")");
-            FinalTechChanged.getLocationRunnableFactory().waitAllTask();
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            BlockStorage.saveChunks();
-            try {
-                for (World world : Bukkit.getWorlds()) {
-                    BlockStorage storage = BlockStorage.getStorage(world);
-                    if (storage != null) {
-                        storage.save();
-                    }
-                }
-                BlockStorage.saveChunks();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            FinalTechChanged.getEntityRunnableFactory().waitAllTask();
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            BlockStorage.saveChunks();
-            try {
-                for (World world : Bukkit.getWorlds()) {
-                    BlockStorage storage = BlockStorage.getStorage(world);
-                    if (storage != null) {
-                        storage.save();
-                    }
-                }
-                BlockStorage.saveChunks();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+//        BlockStorage.saveChunks();
+//        try {
+//            FinalTechChanged.logger().info("Waiting all task to end.(" + FinalTechChanged.getLocationRunnableFactory().taskSize() + ")");
+//            FinalTechChanged.getLocationRunnableFactory().waitAllTask();
+//        } catch (ExecutionException | InterruptedException e) {
+//            e.printStackTrace();
+//        } finally {
+//            BlockStorage.saveChunks();
+//            try {
+//                for (World world : Bukkit.getWorlds()) {
+//                    BlockStorage storage = BlockStorage.getStorage(world);
+//                    if (storage != null) {
+//                        storage.save();
+//                    }
+//                }
+//                BlockStorage.saveChunks();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        try {
+//            FinalTechChanged.getEntityRunnableFactory().waitAllTask();
+//        } catch (ExecutionException | InterruptedException e) {
+//            e.printStackTrace();
+//        } finally {
+//            BlockStorage.saveChunks();
+//            try {
+//                for (World world : Bukkit.getWorlds()) {
+//                    BlockStorage storage = BlockStorage.getStorage(world);
+//                    if (storage != null) {
+//                        storage.save();
+//                    }
+//                }
+//                BlockStorage.saveChunks();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
         pluginInitialization.onDisable();
     }
 

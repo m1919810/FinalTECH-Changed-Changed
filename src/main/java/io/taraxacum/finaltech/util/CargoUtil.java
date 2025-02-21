@@ -1,5 +1,6 @@
 package io.taraxacum.finaltech.util;
 
+import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.taraxacum.common.util.JavaUtil;
 import io.taraxacum.finaltech.FinalTechChanged;
 import io.taraxacum.finaltech.core.dto.CargoDTO;
@@ -9,8 +10,13 @@ import io.taraxacum.libs.plugin.dto.InvWithSlots;
 import io.taraxacum.libs.plugin.dto.ItemWrapper;
 import io.taraxacum.libs.plugin.util.ItemStackUtil;
 import lombok.Getter;
-import me.matl114.matlib.Implements.Managers.ObjectLockFactory;
+import me.matl114.matlib.Algorithms.DataStructures.Complex.DefaultLockFactory;
+import me.matl114.matlib.Utils.Debug;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
+import me.matl114.matlib.Utils.Inventory.Inventorys.AsyncInventoryWrapper;
+import me.matl114.matlib.Utils.Reflect.MethodAccess;
+import me.matl114.matlib.Utils.Reflect.ProxyUtils;
+import me.matl114.matlibAdaptor.Algorithms.DataStructures.LockFactory;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
 import org.bukkit.Location;
@@ -35,9 +41,26 @@ public class CargoUtil {
     private static final int SEARCH_MAP_LIMIT = 3;
     private static final Future<Integer> ZERO_FUTURE = new FutureTask<>(() -> 0);
     @Getter
-    public static final ObjectLockFactory<Location> cargoLockFactory = new ObjectLockFactory<>(Location.class,Location::clone);
+    private static LockFactory<Location> cargoLockFactory ;
+    @Getter
+    private static boolean asyncMode;
     public static void initLockFactory(){
-        cargoLockFactory.init(FinalTechChanged.getInstance()).setupRefreshTask(20*60*10);
+        //cargoLockFactory.init(FinalTechChanged.getInstance()).setupRefreshTask(20*60*10);
+        try{
+            Object lockFactory = MethodAccess.ofName(Slimefun.class,"getCargoLockFactory")
+                    .noSnapShot()
+                    .initWithNull()
+                    .invoke(null);
+            cargoLockFactory = ProxyUtils.buildAdaptorOf(LockFactory.class, lockFactory);
+            asyncMode=true;
+            Debug.logger("Slimefun Async Cargo Factory Adaptor created successfully");
+            Debug.logger("Starting Transportation task async Mode");
+        }catch (Throwable anyError){
+            Debug.severe("Slimefun Async Cargo Factory not found!");
+            Debug.severe("Stopping Transportation task async Mode");
+            cargoLockFactory=new DefaultLockFactory<>();
+            asyncMode=false;
+        }
     }
     public static final int[][] vanillaSlots = IntStream.range(0,60).mapToObj(i->{
         return IntStream.range(0,i).toArray();}).toArray(int[][]::new);
@@ -722,7 +745,7 @@ public class CargoUtil {
             }
         } else if (block.isVanillaInv()){
 
-            inventory = block.inventory();
+            inventory = AsyncInventoryWrapper.wrapOfCurrentThread(FinalTechChanged.getInstance(),block);// block.inventory();
             int[] vanillaSlot = vanillaSlots[inventory.getSize()];
             slots =  Arrays.copyOf(vanillaSlot,vanillaSlot.length);
 

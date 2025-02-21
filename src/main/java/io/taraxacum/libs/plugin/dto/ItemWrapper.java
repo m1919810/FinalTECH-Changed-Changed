@@ -2,7 +2,7 @@ package io.taraxacum.libs.plugin.dto;
 
 import io.github.thebusybiscuit.slimefun4.utils.itemstack.ItemStackWrapper;
 import io.taraxacum.libs.plugin.util.ItemStackUtil;
-import me.matl114.matlib.Utils.Algorithm.LazyInitReference;
+import me.matl114.matlib.Algorithms.DataStructures.Struct.LazyInitReference;
 import me.matl114.matlib.Utils.Inventory.ItemStacks.CleanItemStack;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

@@ -18,7 +18,7 @@ import io.taraxacum.finaltech.util.*;
 import io.taraxacum.libs.plugin.util.ItemStackUtil;
 import io.taraxacum.libs.plugin.util.ParticleUtil;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
-import me.matl114.matlib.Utils.Inventory.InventoryRecords.OldSlimefunInventoryRecord;
+import me.matl114.matlib.SlimefunUtils.BlockInventory.Records.OldSlimefunInventoryRecord;
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;

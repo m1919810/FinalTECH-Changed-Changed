@@ -20,7 +20,7 @@ import io.taraxacum.libs.plugin.dto.InvWithSlots;
 import io.taraxacum.libs.plugin.dto.ServerRunnableLockFactory;
 import io.taraxacum.libs.plugin.util.ParticleUtil;
 import me.matl114.matlib.Utils.Inventory.InventoryRecords.InventoryRecord;
-import me.matl114.matlib.Utils.Inventory.InventoryRecords.OldSlimefunInventoryRecord;
+import me.matl114.matlib.SlimefunUtils.BlockInventory.Records.OldSlimefunInventoryRecord;
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
@@ -130,7 +130,7 @@ public class AdvancedMeshTransfer extends AbstractCargo implements RecipeItem {
         }
 
         // parse block storage
-        Bukkit.getScheduler().runTaskAsynchronously(javaPlugin,()->{
+        Runnable task = ()->{
             String outputSize = SlotSearchSize.OUTPUT_HELPER.defaultValue();
             String outputOrder = SlotSearchOrder.OUTPUT_HELPER.defaultValue();
             int outputCargoNumber = Integer.parseInt(CargoNumber.OUTPUT_HELPER.defaultValue());
@@ -247,7 +247,13 @@ public class AdvancedMeshTransfer extends AbstractCargo implements RecipeItem {
                     }
                 }
             }
-        });
+        };
+        if(CargoUtil.isAsyncMode()){
+            Bukkit.getScheduler().runTaskAsynchronously(javaPlugin,task);
+        }else{
+            task.run();
+        }
+
     }
     @Nonnull
     public InventoryRecord searchBlock(@Nonnull Block sourceBlock, @Nonnull BlockFace blockFace, @Nonnull String searchMode, boolean drawParticle) {
