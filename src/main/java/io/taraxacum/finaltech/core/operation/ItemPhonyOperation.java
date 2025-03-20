@@ -7,6 +7,7 @@ import io.taraxacum.finaltech.FinalTechChanged;
 import io.taraxacum.finaltech.setup.FinalTechItems;
 import io.taraxacum.finaltech.util.ConstantTableUtil;
 import io.taraxacum.libs.plugin.util.ItemStackUtil;
+import io.taraxacum.libs.plugin.util.StringItemUtil;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -32,7 +33,8 @@ public class ItemPhonyOperation implements ItemSerializationConstructorOperation
         this.itemTypeDifficulty = ConstantTableUtil.ITEM_SPIROCHETE_AMOUNT;
         this.itemAmountDifficulty = ConstantTableUtil.ITEM_SINGULARITY_AMOUNT;
         this.showItem = new CustomItemStack(FinalTechItems.ITEM_PHONY.getItem().getType(), FinalTechChanged.getLanguageString("items", FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.getId(), "phony", "name"));
-        this.itemTypeList.add(ItemStackWrapper.wrap(item));
+        ItemStack storedItem = StringItemUtil.parseItemInCard(item);
+        this.itemTypeList.add(storedItem==null?null: ItemStackWrapper.wrap(storedItem));
     }
 
     @Override
@@ -57,18 +59,27 @@ public class ItemPhonyOperation implements ItemSerializationConstructorOperation
 
     @Override
     public int addItem(@Nullable ItemStack itemStack) {
-        if (!FinalTechItems.COPY_CARD.verifyItem(itemStack)) {
+        if (itemStack==null || !FinalTechItems.COPY_CARD.verifyItem(itemStack) || !StringItemUtil.hasItemInCard(itemStack)) {
             return 0;
         }
 
         if (this.itemTypeCount <= this.itemTypeDifficulty) {
             boolean newType = true;
-            ItemStackWrapper itemWrapper = ItemStackWrapper.wrap(itemStack);
+            ItemStack storedItem = StringItemUtil.parseItemInCard(itemStack);
+            ItemStackWrapper itemWrapper = storedItem==null?null: ItemStackWrapper.wrap(storedItem);
             for (ItemStackWrapper itemTypeWrapper : this.itemTypeList) {
-                if (ItemStackUtil.isItemSimilar(itemWrapper, itemTypeWrapper)) {
-                    newType = false;
-                    break;
+                if(itemWrapper == null){
+                    if(itemTypeWrapper == null){
+                        newType = false;
+                        break;
+                    }
+                }else{
+                    if (itemTypeWrapper !=null && ItemStackUtil.isItemSimilar(itemWrapper, itemTypeWrapper)) {
+                        newType = false;
+                        break;
+                    }
                 }
+
             }
             if (newType) {
                 this.itemTypeCount++;

@@ -3,6 +3,7 @@ package io.taraxacum.finaltech.core.item.unusable;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
+import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.taraxacum.finaltech.FinalTechChanged;
 import io.taraxacum.finaltech.FinalTechChanged;
 import io.taraxacum.finaltech.core.interfaces.RecipeItem;
@@ -24,9 +25,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
- 
+
 public class StorageCard extends UnusableSlimefunItem implements RecipeItem, ValidItem {
-    private final String itemLoreWithoutColor = "⌫⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌦";
+    private final String itemLoreWithoutColor = "⌫⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌧⌦" ;
+
     private final String itemLore = TextUtil.colorRandomString(this.itemLoreWithoutColor);
 
     public StorageCard(ItemGroup itemGroup, SlimefunItemStack item, RecipeType recipeType, ItemStack[] recipe) {
@@ -51,8 +53,9 @@ public class StorageCard extends UnusableSlimefunItem implements RecipeItem, Val
         if (!itemMeta.hasLore()) {
             return false;
         }
-        List<String> lore = itemMeta.getLore();
-        return !lore.isEmpty() && this.itemLoreWithoutColor.equals(ChatColor.stripColor(lore.get(0)));
+        return getId().equals(Slimefun.getItemDataService().getItemData(itemMeta).orElse(null));
+//        List<String> lore = itemMeta.getLore();
+//        return !lore.isEmpty() && this.itemLoreWithoutColor.equals(ChatColor.stripColor(lore.get(0)));
     }
 
     @Nonnull

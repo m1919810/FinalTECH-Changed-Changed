@@ -892,10 +892,11 @@ public final class SetupUtil {
     }
 
     private static void registerBlockTicker(int begin) {
-        try {
-            ConfigFileManager configManager = FinalTechChanged.getConfigManager();
-            List<SlimefunItem> slimefunItemList = Slimefun.getRegistry().getAllSlimefunItems();
-            for (int size = slimefunItemList.size(); begin < size; begin++) {
+//        try {
+        ConfigFileManager configManager = FinalTechChanged.getConfigManager();
+        List<SlimefunItem> slimefunItemList = Slimefun.getRegistry().getAllSlimefunItems();
+        for (int size = slimefunItemList.size(); begin < size; begin++) {
+            try{
                 SlimefunItem slimefunItem = slimefunItemList.get(begin);
                 SlimefunAddon slimefunAddon = slimefunItem.getAddon();
                 if (slimefunItem.getBlockTicker() != null) {
@@ -905,14 +906,14 @@ public final class SetupUtil {
                         blockTicker = BlockTickerUtil.getDebugModeBlockTicker(blockTicker, slimefunItem);
                     }
 
-                    if (slimefunItem instanceof RecipeDisplayItem recipeDisplayItem) {
-                        for (ItemStack itemStack : recipeDisplayItem.getDisplayRecipes()) {
-                            SlimefunItem sfItem = SlimefunItem.getByItem(itemStack);
-                            if (sfItem instanceof SimpleValidItem simpleValidItem && !BELIEVABLE_PLUGIN_ID_LIST.contains(sfItem.getAddon().getName()) && simpleValidItem.verifyItem(itemStack)) {
-                                FinalTechChanged.getConfigManager().setValue(new Random().nextLong(Long.MAX_VALUE), "valid-item-seed");
-                            }
-                        }
-                    }
+//                    if (slimefunItem instanceof RecipeDisplayItem recipeDisplayItem) {
+//                        for (ItemStack itemStack : recipeDisplayItem.getDisplayRecipes()) {
+//                            SlimefunItem sfItem = SlimefunItem.getByItem(itemStack);
+//                            if (sfItem instanceof SimpleValidItem simpleValidItem && !BELIEVABLE_PLUGIN_ID_LIST.contains(sfItem.getAddon().getName()) && simpleValidItem.verifyItem(itemStack)) {
+//                                FinalTechChanged.getConfigManager().setValue(new Random().nextLong(Long.MAX_VALUE), "valid-item-seed");
+//                            }
+//                        }
+//                    }
 
                     if (configManager.containPath("tweak", "interval", "general", slimefunItem.getId())) {
                         int interval = configManager.getOrDefault(-1, "tweak", "interval", "general", slimefunItem.getId());
@@ -995,11 +996,15 @@ public final class SetupUtil {
                         }
                     }
                 }
+            }catch (Throwable e){
+                e.printStackTrace();
+
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            SetupUtil.registerBlockTicker(++begin);
+
         }
+//        } catch (Exception e) {
+//            SetupUtil.registerBlockTicker(++begin);
+//        }
     }
 
     public static void dataLossFix() {

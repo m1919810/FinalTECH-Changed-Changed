@@ -69,19 +69,19 @@ public class MatrixItemSerializationConstructor extends AbstractOperationMachine
         this.locationList.add(location);
         BlockMenu blockMenu = BlockStorage.getInventory(block);
 
-        if (FinalTechChanged.getTps() < 19.5 && this.lastLocationList.size() > 1) {
-            if (BlockTickerUtil.hasSleep(config)) {
-                BlockTickerUtil.subSleep(config);
-                return;
-            }
-
-            Location randomLocation = this.lastLocationList.get(FinalTechChanged.getRandom().nextInt(this.lastLocationList.size()));
-            double manhattanDistance = LocationUtil.getManhattanDistance(randomLocation, location);
-            if (manhattanDistance < this.lastLocationList.size()) {
-                BlockTickerUtil.setSleep(config, String.valueOf(this.lastLocationList.size() * (int) (20 - FinalTechChanged.getTps() + 1) * (1 + MachineUtil.slotCount(blockMenu.toInventory(), this.getInputSlot()))));
-                return;
-            }
-        }
+//        if (FinalTechChanged.getTps() < 10 && this.lastLocationList.size() > 1) {
+//            if (BlockTickerUtil.hasSleep(config)) {
+//                BlockTickerUtil.subSleep(config);
+//                return;
+//            }
+//
+//            Location randomLocation = this.lastLocationList.get(FinalTechChanged.getRandom().nextInt(this.lastLocationList.size()));
+//            double manhattanDistance = LocationUtil.getManhattanDistance(randomLocation, location);
+//            if (manhattanDistance < this.lastLocationList.size()) {
+//                BlockTickerUtil.setSleep(config, String.valueOf(this.lastLocationList.size() * (int) (20 - FinalTechChanged.getTps() + 1) * (1 + MachineUtil.slotCount(blockMenu.toInventory(), this.getInputSlot()))));
+//                return;
+//            }
+//        }
 
         ItemSerializationConstructorOperation operation = (ItemSerializationConstructorOperation) this.getMachineProcessor().getOperation(block);
 
@@ -149,12 +149,12 @@ public class MatrixItemSerializationConstructor extends AbstractOperationMachine
         this.locationList = locationList;
         this.locationList.clear();
 
-        if (FinalTechChanged.getTps() < ConstantTableUtil.WARNING_TPS) {
-            FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.setEfficiency(Math.pow(FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.getRate() / (1 + FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.getLastLocationList().size() + this.lastLocationList.size()), 20.0 - FinalTechChanged.getTps()));
-            FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.setEfficiency(FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.getEfficiency() / (1 + FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.getLastLocationList().size() + this.lastLocationList.size()));
-        } else {
+//        if (FinalTechChanged.getTps() < ConstantTableUtil.WARNING_TPS) {
+//            FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.setEfficiency(Math.pow(FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.getRate() / (1 + FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.getLastLocationList().size() + this.lastLocationList.size()), 20.0 - FinalTechChanged.getTps()));
+//            FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.setEfficiency(FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.getEfficiency() / (1 + FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.getLastLocationList().size() + this.lastLocationList.size()));
+//        } else {
             FinalTechItems.ITEM_SERIALIZATION_CONSTRUCTOR.setEfficiency(1);
-        }
+//        }
     }
 
     @Override

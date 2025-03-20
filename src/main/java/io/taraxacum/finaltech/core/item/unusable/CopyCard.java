@@ -50,19 +50,21 @@ public class CopyCard extends UnusableSlimefunItem implements RecipeItem, ValidI
         }
 
         ItemMeta itemMeta = itemStack.getItemMeta();
-        List<String> lore = null;
+        //List<String> lore = null;
         if (itemMeta != null) {
-            lore = itemMeta.getLore();
+            //lore = itemMeta.getLore();
+            //a copy card should never be a null card
+            return getId().equals(Slimefun.getItemDataService().getItemData(itemMeta).orElse(null)) ;
         }
-        if (lore == null) {
-            return false;
-        }
-
-        for (String l : lore) {
-            if (this.itemLoreWithoutColor.equals(ChatColor.stripColor(l))) {
-                return true;
-            }
-        }
+//        if (lore == null) {
+//            return false;
+//        }
+//
+//        for (String l : lore) {
+//            if (this.itemLoreWithoutColor.equals(ChatColor.stripColor(l))) {
+//                return true;
+//            }
+//        }
         return false;
     }
 

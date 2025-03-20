@@ -181,6 +181,14 @@ public class StringItemUtil {
         return count;
     }
 
+    public static boolean hasItemInCard(ItemStack item){
+        return item.hasItemMeta() && hasItemInCard(item.getItemMeta());
+    }
+
+    public static boolean hasItemInCard(ItemMeta meta){
+        return meta!=null && meta.getPersistentDataContainer().has(ITEM_KEY, PersistentDataType.STRING);
+    }
+
     @Nullable
     public static ItemStack parseItemInCard(@Nonnull ItemStack cardItem) {
         if (!cardItem.hasItemMeta()) {

@@ -80,19 +80,19 @@ public class ItemSerializationConstructor extends AbstractOperationMachine {
         this.locationList.add(location);
         BlockMenu blockMenu = BlockStorage.getInventory(block);
 
-        if (FinalTechChanged.getTps() < ConstantTableUtil.WARNING_TPS && this.lastLocationList.size() > 1) {
-            if (BlockTickerUtil.hasSleep(config)) {
-                BlockTickerUtil.subSleep(config);
-                return;
-            }
-
-            Location randomLocation = this.lastLocationList.get(FinalTechChanged.getRandom().nextInt(this.lastLocationList.size()));
-            double manhattanDistance = LocationUtil.getManhattanDistance(randomLocation, location);
-            if (manhattanDistance < this.lastLocationList.size()) {
-                BlockTickerUtil.setSleep(config, String.valueOf(this.lastLocationList.size() * (int) (20 - FinalTechChanged.getTps() + 1) * (1 + MachineUtil.slotCount(blockMenu.toInventory(), this.getInputSlot()))));
-                return;
-            }
-        }
+//        if (FinalTechChanged.getTps() < ConstantTableUtil.WARNING_TPS && this.lastLocationList.size() > 1) {
+//            if (BlockTickerUtil.hasSleep(config)) {
+//                BlockTickerUtil.subSleep(config);
+//                return;
+//            }
+//
+//            Location randomLocation = this.lastLocationList.get(FinalTechChanged.getRandom().nextInt(this.lastLocationList.size()));
+//            double manhattanDistance = LocationUtil.getManhattanDistance(randomLocation, location);
+//            if (manhattanDistance < this.lastLocationList.size()) {
+//                BlockTickerUtil.setSleep(config, String.valueOf(this.lastLocationList.size() * (int) (20 - FinalTechChanged.getTps() + 1) * (1 + MachineUtil.slotCount(blockMenu.toInventory(), this.getInputSlot()))));
+//                return;
+//            }
+//        }
 
         ItemSerializationConstructorOperation operation = (ItemSerializationConstructorOperation) this.getMachineProcessor().getOperation(block);
 
@@ -171,12 +171,12 @@ public class ItemSerializationConstructor extends AbstractOperationMachine {
         this.locationList = locationList;
         this.locationList.clear();
 
-        if (FinalTechChanged.getTps() < ConstantTableUtil.WARNING_TPS) {
-            this.efficiency = Math.pow(this.rate / (1 + this.lastLocationList.size() + FinalTechItems.MATRIX_ITEM_SERIALIZATION_CONSTRUCTOR.getLastLocationList().size()), 20.0 - FinalTechChanged.getTps());
-            this.efficiency /= 1 + this.lastLocationList.size() + FinalTechItems.MATRIX_ITEM_SERIALIZATION_CONSTRUCTOR.getLastLocationList().size();
-        } else {
+//        if (FinalTechChanged.getTps() < ConstantTableUtil.WARNING_TPS) {
+//            this.efficiency = Math.pow(this.rate / (1 + this.lastLocationList.size() + FinalTechItems.MATRIX_ITEM_SERIALIZATION_CONSTRUCTOR.getLastLocationList().size()), 20.0 - FinalTechChanged.getTps());
+//            this.efficiency /= 1 + this.lastLocationList.size() + FinalTechItems.MATRIX_ITEM_SERIALIZATION_CONSTRUCTOR.getLastLocationList().size();
+//        } else {
             this.efficiency = 1;
-        }
+//        }
     }
 
     @Override
